@@ -10,7 +10,9 @@ jobs:
     name: Build
     strategy:
       matrix:
-        go-version: [1.16.x, 1.15.x]
+        # Do not move this line; it is referred to by README.md.
+        # Versions of Go that are explicitly supported by Gonum.
+        go-version: [1.19.x, 1.18.x]
         platform: [ubuntu-latest, macos-latest]
         force-goarch: ["", "386"]
         tags: 
@@ -54,27 +56,33 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
 
-    - name: Cache-Go
-      uses: actions/cache@v1
-      with:
-        path: |
-            ~/go/pkg/mod              # Module download cache
-            ~/.cache/go-build         # Build cache (Linux)
-            ~/Library/Caches/go-build # Build cache (Mac)
-            '%LocalAppData%\go-build' # Build cache (Windows)
-
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-
     - name: Checkout code
       uses: actions/checkout@v2
       with:
           path: ${{ env.GOPATH }}/src/gonum.org/v1/gonum
 
+    - name: Cache-Go
+      uses: actions/cache@v2
+      with:
+        # In order:
+        # * Module download cache 
+        # * Build cache (Linux)
+        # * Build cache (Mac)
+        # * Build cache (Windows)
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+          ~/Library/Caches/go-build
+          '%LocalAppData%\go-build'
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
     - name: Check copyrights+imports+formatting+generate
       if: matrix.platform == 'ubuntu-latest' && matrix.tags == ''
       run: |
+        sudo apt-get update
+        sudo apt-get install -qq ragel
         ./.github/workflows/script.d/deps.sh
         ./.github/workflows/script.d/check-copyright.sh
         ./.github/workflows/script.d/check-imports.sh

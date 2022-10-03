@@ -19,7 +19,9 @@ const badInputLength = "distmv: input slice length mismatch"
 
 // Normal is a multivariate normal distribution (also known as the multivariate
 // Gaussian distribution). Its pdf in k dimensions is given by
-//  (2 π)^(-k/2) |Σ|^(-1/2) exp(-1/2 (x-μ)'Σ^-1(x-μ))
+//
+//	(2 π)^(-k/2) |Σ|^(-1/2) exp(-1/2 (x-μ)'Σ^-1(x-μ))
+//
 // where μ is the mean vector and Σ the covariance matrix. Σ must be symmetric
 // and positive definite. Use NewNormal to construct.
 type Normal struct {
@@ -43,7 +45,7 @@ func NewNormal(mu []float64, sigma mat.Symmetric, src rand.Source) (*Normal, boo
 	if len(mu) == 0 {
 		panic(badZeroDimension)
 	}
-	dim := sigma.Symmetric()
+	dim := sigma.SymmetricDim()
 	if dim != len(mu) {
 		panic(badSizeMismatch)
 	}
@@ -69,7 +71,7 @@ func NewNormal(mu []float64, sigma mat.Symmetric, src rand.Source) (*Normal, boo
 // panics if len(mu) is not equal to chol.Size().
 func NewNormalChol(mu []float64, chol *mat.Cholesky, src rand.Source) *Normal {
 	dim := len(mu)
-	if dim != chol.Symmetric() {
+	if dim != chol.SymmetricDim() {
 		panic(badSizeMismatch)
 	}
 	n := &Normal{
@@ -86,18 +88,18 @@ func NewNormalChol(mu []float64, chol *mat.Cholesky, src rand.Source) *Normal {
 
 // NewNormalPrecision creates a new Normal distribution with the given mean and
 // precision matrix (inverse of the covariance matrix). NewNormalPrecision
-// panics if len(mu) is not equal to prec.Symmetric(). If the precision matrix
+// panics if len(mu) is not equal to prec.SymmetricDim(). If the precision matrix
 // is not positive-definite, NewNormalPrecision returns nil for norm and false
 // for ok.
 func NewNormalPrecision(mu []float64, prec *mat.SymDense, src rand.Source) (norm *Normal, ok bool) {
 	if len(mu) == 0 {
 		panic(badZeroDimension)
 	}
-	dim := prec.Symmetric()
+	dim := prec.SymmetricDim()
 	if dim != len(mu) {
 		panic(badSizeMismatch)
 	}
-	// TODO(btracey): Computing a matrix inverse is generally numerically instable.
+	// TODO(btracey): Computing a matrix inverse is generally numerically unstable.
 	// This only has to compute the inverse of a positive definite matrix, which
 	// is much better, but this still loses precision. It is worth considering if
 	// instead the precision matrix should be stored explicitly and used instead
@@ -119,8 +121,10 @@ func NewNormalPrecision(mu []float64, prec *mat.SymDense, src rand.Source) (norm
 // on the input evidence. The returned multivariate normal has dimension
 // n - len(observed), where n is the dimension of the original receiver. The updated
 // mean and covariance are
-//  mu = mu_un + sigma_{ob,un}ᵀ * sigma_{ob,ob}^-1 (v - mu_ob)
-//  sigma = sigma_{un,un} - sigma_{ob,un}ᵀ * sigma_{ob,ob}^-1 * sigma_{ob,un}
+//
+//	mu = mu_un + sigma_{ob,un}ᵀ * sigma_{ob,ob}^-1 (v - mu_ob)
+//	sigma = sigma_{un,un} - sigma_{ob,un}ᵀ * sigma_{ob,ob}^-1 * sigma_{ob,un}
+//
 // where mu_un and mu_ob are the original means of the unobserved and observed
 // variables respectively, sigma_{un,un} is the unobserved subset of the covariance
 // matrix, sigma_{ob,ob} is the observed subset of the covariance matrix, and
@@ -154,14 +158,16 @@ func (n *Normal) ConditionNormal(observed []int, values []float64, src rand.Sour
 // CovarianceMatrix stores the covariance matrix of the distribution in dst.
 // Upon return, the value at element {i, j} of the covariance matrix is equal
 // to the covariance of the i^th and j^th variables.
-//  covariance(i, j) = E[(x_i - E[x_i])(x_j - E[x_j])]
+//
+//	covariance(i, j) = E[(x_i - E[x_i])(x_j - E[x_j])]
+//
 // If the dst matrix is empty it will be resized to the correct dimensions,
 // otherwise dst must match the dimension of the receiver or CovarianceMatrix
 // will panic.
 func (n *Normal) CovarianceMatrix(dst *mat.SymDense) {
 	if dst.IsEmpty() {
 		*dst = *(dst.GrowSym(n.dim).(*mat.SymDense))
-	} else if dst.Symmetric() != n.dim {
+	} else if dst.SymmetricDim() != n.dim {
 		panic("normal: input matrix size mismatch")
 	}
 	dst.CopySym(&n.sigma)
@@ -197,7 +203,7 @@ func NormalLogProb(x, mu []float64, chol *mat.Cholesky) float64 {
 	if len(x) != dim {
 		panic(badSizeMismatch)
 	}
-	if chol.Symmetric() != dim {
+	if chol.SymmetricDim() != dim {
 		panic(badSizeMismatch)
 	}
 	logSqrtDet := 0.5 * chol.LogDet()
@@ -215,7 +221,9 @@ func normalLogProb(x, mu []float64, chol *mat.Cholesky, logSqrtDet float64) floa
 
 // MarginalNormal returns the marginal distribution of the given input variables.
 // That is, MarginalNormal returns
-//  p(x_i) = \int_{x_o} p(x_i | x_o) p(x_o) dx_o
+//
+//	p(x_i) = \int_{x_o} p(x_i | x_o) p(x_o) dx_o
+//
 // where x_i are the dimensions in the input, and x_o are the remaining dimensions.
 // See https://en.wikipedia.org/wiki/Marginal_distribution for more information.
 //
@@ -232,7 +240,9 @@ func (n *Normal) MarginalNormal(vars []int, src rand.Source) (*Normal, bool) {
 
 // MarginalNormalSingle returns the marginal of the given input variable.
 // That is, MarginalNormal returns
-//  p(x_i) = \int_{x_¬i} p(x_i | x_¬i) p(x_¬i) dx_¬i
+//
+//	p(x_i) = \int_{x_¬i} p(x_i | x_¬i) p(x_¬i) dx_¬i
+//
 // where i is the input index.
 // See https://en.wikipedia.org/wiki/Marginal_distribution for more information.
 //
@@ -301,7 +311,7 @@ func (n *Normal) Rand(x []float64) []float64 {
 // available. Otherwise, the NewNormal function should be used.
 func NormalRand(x, mean []float64, chol *mat.Cholesky, src rand.Source) []float64 {
 	x = reuseAs(x, len(mean))
-	if len(mean) != chol.Symmetric() {
+	if len(mean) != chol.SymmetricDim() {
 		panic(badInputLength)
 	}
 	if src == nil {
@@ -320,7 +330,9 @@ func NormalRand(x, mean []float64, chol *mat.Cholesky, src rand.Source) []float6
 
 // ScoreInput returns the gradient of the log-probability with respect to the
 // input x. That is, ScoreInput computes
-//  ∇_x log(p(x))
+//
+//	∇_x log(p(x))
+//
 // If score is nil, a new slice will be allocated and returned. If score is of
 // length the dimension of Normal, then the result will be put in-place into score.
 // If neither of these is true, ScoreInput will panic.

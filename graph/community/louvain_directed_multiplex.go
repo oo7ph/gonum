@@ -7,7 +7,6 @@ package community
 import (
 	"fmt"
 	"math"
-	"sort"
 
 	"golang.org/x/exp/rand"
 
@@ -39,7 +38,7 @@ type DirectedMultiplex interface {
 // qUndirectedMultiplex will panic if the graph has any layer weight-scaled edge with
 // negative edge weight.
 //
-//  Q_{layer} = w_{layer} \sum_{ij} [ A_{layer}*_{ij} - (\gamma_{layer} k_i k_j)/2m ] \delta(c_i,c_j)
+//	Q_{layer} = w_{layer} \sum_{ij} [ A_{layer}*_{ij} - (\gamma_{layer} k_i k_j)/2m ] \delta(c_i,c_j)
 //
 // Note that Q values for multiplex graphs are not scaled by the total layer edge weight.
 func qDirectedMultiplex(g DirectedMultiplex, communities [][]graph.Node, weights, resolutions []float64) []float64 {
@@ -299,7 +298,7 @@ func reduceDirectedMultiplex(g DirectedMultiplex, communities [][]graph.Node, we
 		// community provided by the user for a Q calculation.
 		// Probably we should use a function to map the
 		// communities in the test sets to the remapped order.
-		sort.Sort(ordered.ByID(nodes))
+		ordered.ByID(nodes)
 		communities = make([][]graph.Node, len(nodes))
 		for i := range nodes {
 			communities[i] = []graph.Node{node(i)}

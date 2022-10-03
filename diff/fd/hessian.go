@@ -13,7 +13,9 @@ import (
 
 // Hessian approximates the Hessian matrix of the multivariate function f at
 // the location x. That is
-//  H_{i,j} = ∂^2 f(x)/∂x_i ∂x_j
+//
+//	H_{i,j} = ∂^2 f(x)/∂x_i ∂x_j
+//
 // The resulting H will be stored in dst. Finite difference formula and other
 // options are specified by settings. If settings is nil, the Hessian will be
 // estimated using the Forward formula and a default step size.
@@ -25,7 +27,7 @@ func Hessian(dst *mat.SymDense, f func(x []float64) float64, x []float64, settin
 	n := len(x)
 	if dst.IsEmpty() {
 		*dst = *(dst.GrowSym(n).(*mat.SymDense))
-	} else if dst.Symmetric() != n {
+	} else if dst.SymmetricDim() != n {
 		panic("hessian: dst size mismatch")
 	}
 	dst.Zero()
@@ -111,7 +113,7 @@ func hessianSerial(dst *mat.SymDense, f func(x []float64) float64, x []float64, 
 }
 
 func hessianConcurrent(dst *mat.SymDense, nWorkers, evals int, f func(x []float64) float64, x []float64, stencil []Point, step float64, originKnown bool, originValue float64) {
-	n := dst.Symmetric()
+	n := dst.SymmetricDim()
 	type run struct {
 		i, j       int
 		iIdx, jIdx int

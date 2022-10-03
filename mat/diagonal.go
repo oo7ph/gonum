@@ -43,27 +43,14 @@ type Diagonal interface {
 	// Diag returns the number of rows/columns in the matrix.
 	Diag() int
 
-	// Bandwidth and TBand are included in the Diagonal interface
-	// to allow the use of Diagonal types in banded functions.
-	// Bandwidth will always return (0, 0).
-	Bandwidth() (kl, ku int)
-	TBand() Banded
-
-	// Triangle and TTri are included in the Diagonal interface
-	// to allow the use of Diagonal types in triangular functions.
-	Triangle() (int, TriKind)
-	TTri() Triangular
-
-	// Symmetric and SymBand are included in the Diagonal interface
-	// to allow the use of Diagonal types in symmetric and banded symmetric
-	// functions respectively.
-	Symmetric() int
-	SymBand() (n, k int)
-
-	// TriBand and TTriBand are included in the Diagonal interface
-	// to allow the use of Diagonal types in triangular banded functions.
-	TriBand() (n, k int, kind TriKind)
-	TTriBand() TriBanded
+	// The following interfaces are included in the Diagonal
+	// interface to allow the use of Diagonal types in
+	// functions operating on these types.
+	Banded
+	SymBanded
+	Symmetric
+	Triangular
+	TriBanded
 }
 
 // MutableDiagonal is a Diagonal matrix whose elements can be set.
@@ -137,8 +124,8 @@ func (d *DiagDense) Bandwidth() (kl, ku int) {
 	return 0, 0
 }
 
-// Symmetric implements the Symmetric interface.
-func (d *DiagDense) Symmetric() int {
+// SymmetricDim implements the Symmetric interface.
+func (d *DiagDense) SymmetricDim() int {
 	return d.mat.N
 }
 
@@ -332,9 +319,10 @@ func (d *DiagDense) Trace() float64 {
 }
 
 // Norm returns the specified norm of the receiver. Valid norms are:
-//  1 or Inf - The maximum diagonal element magnitude
-//  2 - The Frobenius norm, the square root of the sum of the squares of
-//      the diagonal elements
+//
+//	1 or Inf - The maximum diagonal element magnitude
+//	2 - The Frobenius norm, the square root of the sum of the squares of
+//	    the diagonal elements
 //
 // Norm will panic with ErrNormOrder if an illegal norm is specified and with
 // ErrZeroLength if the receiver has zero size.

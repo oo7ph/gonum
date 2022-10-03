@@ -61,7 +61,7 @@ func (n *Nodes) Node() graph.Node {
 func (n *Nodes) Reset() {
 	n.curr = nil
 	n.pos = 0
-	n.iter = n.nodes.MapRange()
+	n.iter.Reset(n.nodes)
 }
 
 // NodeSlice returns all the remaining nodes in the iterator and advances

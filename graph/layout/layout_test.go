@@ -9,10 +9,8 @@ import (
 	"encoding/base64"
 	"image"
 	"image/png"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"testing"
 
@@ -31,13 +29,13 @@ type orderedGraph struct {
 
 func (g orderedGraph) Nodes() graph.Nodes {
 	n := graph.NodesOf(g.Graph.Nodes())
-	sort.Sort(ordered.ByID(n))
+	ordered.ByID(n)
 	return iterator.NewOrderedNodes(n)
 }
 
 func (g orderedGraph) From(id int64) graph.Nodes {
 	n := graph.NodesOf(g.Graph.From(id))
-	sort.Sort(ordered.ByID(n))
+	ordered.ByID(n)
 	return iterator.NewOrderedNodes(n)
 }
 
@@ -60,13 +58,13 @@ func checkRenderedLayout(t *testing.T, path string) (ok bool) {
 
 	// Read the images we've just generated and check them against the
 	// Golden Images.
-	got, err := ioutil.ReadFile(path)
+	got, err := os.ReadFile(path)
 	if err != nil {
 		t.Errorf("failed to read %s: %v", path, err)
 		return true
 	}
 	golden := goldenPath(path)
-	want, err := ioutil.ReadFile(golden)
+	want, err := os.ReadFile(golden)
 	if err != nil {
 		t.Errorf("failed to read golden file %s: %v", golden, err)
 		return true

@@ -14,7 +14,8 @@ import (
 // with support above the scale parameter.
 //
 // The density function is given by
-//  (α x_m^{α})/(x^{α+1}) for x >= x_m.
+//
+//	(α x_m^{α})/(x^{α+1}) for x >= x_m.
 //
 // For more information, see https://en.wikipedia.org/wiki/Pareto_distribution.
 type Pareto struct {
@@ -104,7 +105,7 @@ func (p Pareto) Rand() float64 {
 	} else {
 		rnd = rand.New(p.Src).ExpFloat64()
 	}
-	return math.Exp(math.Log(p.Xm) + 1/p.Alpha*rnd)
+	return p.Xm * math.Exp(rnd/p.Alpha)
 }
 
 // StdDev returns the standard deviation of the probability distribution.

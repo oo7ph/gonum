@@ -622,9 +622,10 @@ func (t *TriDense) sliceTri(i, k int) *TriDense {
 }
 
 // Norm returns the specified norm of the receiver. Valid norms are:
-//  1 - The maximum absolute column sum
-//  2 - The Frobenius norm, the square root of the sum of the squares of the elements
-//  Inf - The maximum absolute row sum
+//
+//	1 - The maximum absolute column sum
+//	2 - The Frobenius norm, the square root of the sum of the squares of the elements
+//	Inf - The maximum absolute row sum
 //
 // Norm will panic with ErrNormOrder if an illegal norm is specified and with
 // ErrZeroLength if the matrix has zero size.
@@ -659,7 +660,7 @@ func (t *TriDense) Trace() float64 {
 // copySymIntoTriangle copies a symmetric matrix into a TriDense
 func copySymIntoTriangle(t *TriDense, s Symmetric) {
 	n, upper := t.Triangle()
-	ns := s.Symmetric()
+	ns := s.SymmetricDim()
 	if n != ns {
 		panic("mat: triangle size mismatch")
 	}

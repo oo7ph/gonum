@@ -89,8 +89,8 @@ func TestCholeskyAt(t *testing.T) {
 		if !ok {
 			t.Fatalf("Matrix not positive definite")
 		}
-		n := test.Symmetric()
-		cn := chol.Symmetric()
+		n := test.SymmetricDim()
+		cn := chol.SymmetricDim()
 		if cn != n {
 			t.Errorf("Cholesky size does not match. Got %d, want %d", cn, n)
 		}
@@ -460,7 +460,7 @@ func TestCholeskySymRankOne(t *testing.T) {
 				0, 0, 6, 10,
 				0, 0, 0, 20,
 			}),
-			alpha:  -1 / 2,
+			alpha:  -0.5,
 			x:      []float64{0, 0, 0, 1},
 			wantOk: true,
 		},
@@ -516,7 +516,7 @@ func TestCholeskyExtendVecSym(t *testing.T) {
 			}),
 		},
 	} {
-		n := test.a.Symmetric()
+		n := test.a.SymmetricDim()
 		as := test.a.sliceSym(0, n-1)
 
 		// Compute the full factorization to use later (do the full factorization

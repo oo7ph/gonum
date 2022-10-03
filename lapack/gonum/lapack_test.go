@@ -17,11 +17,6 @@ func TestDbdsqr(t *testing.T) {
 	testlapack.DbdsqrTest(t, impl)
 }
 
-func TestDcombssq(t *testing.T) {
-	t.Parallel()
-	testlapack.DcombssqTest(t, impl)
-}
-
 func TestDhseqr(t *testing.T) {
 	t.Parallel()
 	testlapack.DhseqrTest(t, impl)
@@ -198,6 +193,11 @@ func TestDlaexc(t *testing.T) {
 	testlapack.DlaexcTest(t, impl)
 }
 
+func TestDlag2(t *testing.T) {
+	t.Parallel()
+	testlapack.Dlag2Test(t, impl)
+}
+
 func TestDlags2(t *testing.T) {
 	t.Parallel()
 	testlapack.Dlags2Test(t, impl)
@@ -246,6 +246,11 @@ func TestDlapy2(t *testing.T) {
 func TestDlapll(t *testing.T) {
 	t.Parallel()
 	testlapack.DlapllTest(t, impl)
+}
+
+func TestDlapmr(t *testing.T) {
+	t.Parallel()
+	testlapack.DlapmrTest(t, impl)
 }
 
 func TestDlapmt(t *testing.T) {
@@ -463,6 +468,11 @@ func TestDorgqr(t *testing.T) {
 	testlapack.DorgqrTest(t, impl)
 }
 
+func TestDorgr2(t *testing.T) {
+	t.Parallel()
+	testlapack.Dorgr2Test(t, impl)
+}
+
 func TestDorgtr(t *testing.T) {
 	t.Parallel()
 	testlapack.DorgtrTest(t, impl)
@@ -546,6 +556,16 @@ func TestDpotri(t *testing.T) {
 func TestDpotrs(t *testing.T) {
 	t.Parallel()
 	testlapack.DpotrsTest(t, impl)
+}
+
+func TestDpstf2(t *testing.T) {
+	t.Parallel()
+	testlapack.Dpstf2Test(t, impl)
+}
+
+func TestDpstrf(t *testing.T) {
+	t.Parallel()
+	testlapack.DpstrfTest(t, impl)
 }
 
 func TestDrscl(t *testing.T) {

@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//nolint:deadcode,unused
+//lint:file-ignore U1000 A number of functions are here that may be used in future.
+
 package mat
 
 import (
@@ -765,7 +766,7 @@ func makeCopyOf(a Matrix) Matrix {
 		m.CloneFrom(a)
 		return returnAs(&m, t)
 	case *SymDense, *basicSymmetric:
-		n := t.(Symmetric).Symmetric()
+		n := t.(Symmetric).SymmetricDim()
 		m := NewSymDense(n, nil)
 		m.CopySym(t.(Symmetric))
 		return returnAs(m, t)

@@ -134,7 +134,11 @@ func checkIRIText(iri string) error {
 	}
 }
 
-// Parts returns the pars of the term and the kind of the term.
+func isLiteral(s string) bool {
+	return strings.HasPrefix(s, `"`) && strings.HasSuffix(s, `"`)
+}
+
+// Parts returns the parts of the term and the kind of the term.
 // IRI node text is returned as a valid IRI with the quoting angle
 // brackets removed and escape sequences interpreted, and blank
 // nodes are stripped of the "_:" prefix.
